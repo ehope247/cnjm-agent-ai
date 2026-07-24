@@ -1,6 +1,13 @@
-import { customProvider, gateway } from "ai";
+import { createOpenAI } from "@ai-sdk/openai";
 import { isTestEnvironment } from "../constants";
+import { customProvider } from "ai";
 import { titleModel } from "./models";
+
+// OpenAI-compatible NVIDIA API provider
+const openaiProvider = createOpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+  baseURL: process.env.OPENAI_BASE_URL || "https://integrate.api.nvidia.com/v1",
+});
 
 export const myProvider = isTestEnvironment
   ? (() => {
@@ -19,12 +26,13 @@ export function getLanguageModel(modelId: string) {
     return myProvider.languageModel(modelId);
   }
 
-  return gateway.languageModel(modelId);
+  return openaiProvider(modelId);
 }
 
 export function getTitleModel() {
   if (isTestEnvironment && myProvider) {
     return myProvider.languageModel("title-model");
   }
-  return gateway.languageModel(titleModel.id);
+
+  return openaiProvider(titleModel.id);
 }

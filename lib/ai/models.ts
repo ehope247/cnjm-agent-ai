@@ -1,11 +1,10 @@
-export const DEFAULT_CHAT_MODEL = "anthropic/claude-sonnet-4.6";
+export const DEFAULT_CHAT_MODEL = "nvidia/llama-3.1-nemotron-70b-instruct";
 
 export const titleModel = {
-  id: "mistral/mistral-small",
-  name: "Mistral Small",
-  provider: "mistral",
-  description: "Fast model for title generation",
-  gatewayOrder: ["mistral"],
+  id: "meta/llama-3.1-8b-instruct",
+  name: "Llama 3.1 8B",
+  provider: "meta",
+  description: "Ultra-fast lightweight model for title generation",
 };
 
 export type ModelCapabilities = {
@@ -19,169 +18,71 @@ export type ChatModel = {
   name: string;
   provider: string;
   description: string;
-  gatewayOrder?: string[];
+  capabilities: ModelCapabilities;
   reasoningEffort?: "none" | "minimal" | "low" | "medium" | "high";
 };
 
 export const chatModels: ChatModel[] = [
   {
-    id: "deepseek/deepseek-v3.2",
-    name: "DeepSeek V3.2",
-    provider: "deepseek",
-    description: "Fast and capable model with tool use",
-    gatewayOrder: ["bedrock", "deepinfra"],
+    id: "nvidia/llama-3.1-nemotron-70b-instruct",
+    name: "Nemotron 70B",
+    provider: "nvidia",
+    description: "NVIDIA's flagship model — strong reasoning and tool calling",
+    capabilities: {
+      tools: true,
+      vision: false,
+      reasoning: true,
+    },
   },
   {
-    id: "mistral/codestral",
-    name: "Codestral",
-    provider: "mistral",
-    description: "Code-focused model with tool use",
-    gatewayOrder: ["mistral"],
+    id: "meta/llama-3.1-70b-instruct",
+    name: "Llama 3.1 70B",
+    provider: "meta",
+    description: "Advanced Meta model with tool use and strong reasoning",
+    capabilities: {
+      tools: true,
+      vision: false,
+      reasoning: true,
+    },
   },
   {
-    id: "mistral/mistral-small",
-    name: "Mistral Small",
-    provider: "mistral",
-    description: "Fast vision model with tool use",
-    gatewayOrder: ["mistral"],
-  },
-  {
-    id: "moonshotai/kimi-k2",
-    name: "Kimi K2",
-    provider: "moonshotai",
-    description: "Fast model with tool use",
-    gatewayOrder: ["baseten", "fireworks"],
-  },
-  {
-    id: "moonshotai/kimi-k2.5",
-    name: "Kimi K2.5",
-    provider: "moonshotai",
-    description: "Moonshot AI flagship model",
-    gatewayOrder: ["fireworks", "bedrock"],
-  },
-  {
-    id: "moonshotai/kimi-k2.6",
-    name: "Kimi K2.6",
-    provider: "moonshotai",
-    description: "Latest Moonshot K2 release",
-    gatewayOrder: ["fireworks", "bedrock"],
-  },
-  {
-    id: "anthropic/claude-sonnet-4.6",
-    name: "Claude Sonnet 4.6",
-    provider: "anthropic",
-    description: "Strong general model for tool use and reasoning",
-    gatewayOrder: ["anthropic", "bedrock"],
-  },
-  {
-    id: "openai/gpt-oss-20b",
-    name: "GPT OSS 20B",
-    provider: "openai",
-    description: "Compact reasoning model",
-    gatewayOrder: ["groq", "bedrock"],
-    reasoningEffort: "low",
-  },
-  {
-    id: "openai/gpt-oss-120b",
-    name: "GPT OSS 120B",
-    provider: "openai",
-    description: "Open-source 120B parameter model",
-    gatewayOrder: ["fireworks", "bedrock"],
-    reasoningEffort: "low",
-  },
-  {
-    id: "xai/grok-4.1-fast-non-reasoning",
-    name: "Grok 4.1 Fast",
-    provider: "xai",
-    description: "Fast non-reasoning model with tool use",
-    gatewayOrder: ["xai"],
+    id: "meta/llama-3.1-8b-instruct",
+    name: "Llama 3.1 8B",
+    provider: "meta",
+    description: "Lightweight and extremely fast with tool calling",
+    capabilities: {
+      tools: true,
+      vision: false,
+      reasoning: false,
+    },
   },
 ];
 
+/** Returns static capabilities for a model by ID. */
+export function getCapabilityByModelId(modelId: string): ModelCapabilities {
+  const model = chatModels.find((m) => m.id === modelId);
+  return (
+    model?.capabilities ?? { tools: false, vision: false, reasoning: false }
+  );
+}
+
+/** Returns capabilities for all chat models as a record. */
 export async function getCapabilities(): Promise<
   Record<string, ModelCapabilities>
 > {
-  const results = await Promise.all(
-    chatModels.map(async (model) => {
-      try {
-        const res = await fetch(
-          `https://ai-gateway.vercel.sh/v1/models/${model.id}/endpoints`,
-          { next: { revalidate: 86_400 } }
-        );
-        if (!res.ok) {
-          return [model.id, { tools: false, vision: false, reasoning: false }];
-        }
-
-        const json = await res.json();
-        const endpoints = json.data?.endpoints ?? [];
-        const params = new Set(
-          endpoints.flatMap(
-            (e: { supported_parameters?: string[] }) =>
-              e.supported_parameters ?? []
-          )
-        );
-        const inputModalities = new Set(
-          json.data?.architecture?.input_modalities ?? []
-        );
-
-        return [
-          model.id,
-          {
-            tools: params.has("tools"),
-            vision: inputModalities.has("image"),
-            reasoning: params.has("reasoning"),
-          },
-        ];
-      } catch {
-        return [model.id, { tools: false, vision: false, reasoning: false }];
-      }
-    })
+  return Object.fromEntries(
+    chatModels.map((m) => [m.id, m.capabilities])
   );
-
-  return Object.fromEntries(results);
 }
 
 export const isDemo = process.env.IS_DEMO === "1";
-
-type GatewayModel = {
-  id: string;
-  name: string;
-  type?: string;
-  tags?: string[];
-};
 
 export type GatewayModelWithCapabilities = ChatModel & {
   capabilities: ModelCapabilities;
 };
 
-export async function getAllGatewayModels(): Promise<
-  GatewayModelWithCapabilities[]
-> {
-  try {
-    const res = await fetch("https://ai-gateway.vercel.sh/v1/models", {
-      next: { revalidate: 86_400 },
-    });
-    if (!res.ok) {
-      return [];
-    }
-
-    const json = await res.json();
-    return (json.data ?? [])
-      .filter((m: GatewayModel) => m.type === "language")
-      .map((m: GatewayModel) => ({
-        id: m.id,
-        name: m.name,
-        provider: m.id.split("/")[0],
-        description: "",
-        capabilities: {
-          tools: m.tags?.includes("tool-use") ?? false,
-          vision: m.tags?.includes("vision") ?? false,
-          reasoning: m.tags?.includes("reasoning") ?? false,
-        },
-      }));
-  } catch {
-    return [];
-  }
+export function getAllGatewayModels(): GatewayModelWithCapabilities[] {
+  return chatModels;
 }
 
 export function getActiveModels(): ChatModel[] {

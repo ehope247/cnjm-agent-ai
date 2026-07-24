@@ -8,7 +8,7 @@ export async function GET() {
   const curatedCapabilities = await getCapabilities();
 
   if (isDemo) {
-    const models = await getAllGatewayModels();
+    const models = getAllGatewayModels();
     const capabilities = Object.fromEntries(
       models.map((m) => [m.id, curatedCapabilities[m.id] ?? m.capabilities])
     );
