@@ -343,8 +343,9 @@ export async function POST(request: Request) {
           });
         }
       },
-      onError: (_error) => {
-        return "Oops, an error occurred!";
+      onError: (error: any) => {
+        console.error("Chat API Error:", error);
+        return `NVIDIA API Error: ${error?.message || JSON.stringify(error)}`;
       },
     });
 
@@ -369,15 +370,14 @@ export async function POST(request: Request) {
         }
       },
     });
-  } catch (error) {
-    const vercelId = request.headers.get("x-vercel-id");
+  } catch (error: any) {
+    console.error("Chat API Error:", error);
 
     if (error instanceof ChatbotError) {
       return error.toResponse();
     }
 
-    console.error("Unhandled error in chat API:", error, { vercelId });
-    return new ChatbotError("offline:chat").toResponse();
+    return new Response(`NVIDIA API Error: ${error?.message || JSON.stringify(error)}`, { status: 200 });
   }
 }
 
