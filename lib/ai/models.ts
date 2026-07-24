@@ -1,4 +1,4 @@
-export const DEFAULT_CHAT_MODEL = "nvidia/llama-3.1-nemotron-70b-instruct";
+export const DEFAULT_CHAT_MODEL = "meta/llama-3.1-8b-instruct";
 
 export const titleModel = {
   id: "meta/llama-3.1-8b-instruct",
@@ -24,17 +24,6 @@ export type ChatModel = {
 
 export const chatModels: ChatModel[] = [
   {
-    id: "nvidia/llama-3.1-nemotron-70b-instruct",
-    name: "Nemotron 70B",
-    provider: "nvidia",
-    description: "NVIDIA's native model — strong reasoning and tool calling",
-    capabilities: {
-      tools: true,
-      vision: false,
-      reasoning: true,
-    },
-  },
-  {
     id: "meta/llama-3.1-8b-instruct",
     name: "Llama 3.1 8B",
     provider: "meta",
@@ -43,6 +32,28 @@ export const chatModels: ChatModel[] = [
       tools: true,
       vision: false,
       reasoning: false,
+    },
+  },
+  {
+    id: "nvidia/nemotron-4-15b-chat",
+    name: "Nemotron 4 15B",
+    provider: "nvidia",
+    description: "NVIDIA Nemotron chat model",
+    capabilities: {
+      tools: true,
+      vision: false,
+      reasoning: false,
+    },
+  },
+  {
+    id: "nvidia/llama-3.1-nemotron-70b-instruct",
+    name: "Nemotron 70B",
+    provider: "nvidia",
+    description: "NVIDIA's native model — strong reasoning and tool calling",
+    capabilities: {
+      tools: true,
+      vision: false,
+      reasoning: true,
     },
   },
 ];

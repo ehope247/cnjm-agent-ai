@@ -6,7 +6,7 @@ import { titleModel } from "./models";
 // OpenAI-compatible NVIDIA API provider
 const openaiProvider = createOpenAI({
   apiKey: process.env.OPENAI_API_KEY,
-  baseURL: process.env.OPENAI_BASE_URL || "https://integrate.api.nvidia.com/v1",
+  baseURL: "https://integrate.api.nvidia.com/v1",
   compatibility: "compatible",
 } as any);
 
