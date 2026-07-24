@@ -7,7 +7,8 @@ import { titleModel } from "./models";
 const openaiProvider = createOpenAI({
   apiKey: process.env.OPENAI_API_KEY,
   baseURL: process.env.OPENAI_BASE_URL || "https://integrate.api.nvidia.com/v1",
-});
+  compatibility: "compatible",
+} as any);
 
 export const myProvider = isTestEnvironment
   ? (() => {
