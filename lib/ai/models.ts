@@ -1,4 +1,4 @@
-export const DEFAULT_CHAT_MODEL = "meta/llama-3.1-70b-instruct";
+export const DEFAULT_CHAT_MODEL = "deepseek-ai/deepseek-r1";
 
 export const titleModel = {
   id: "meta/llama-3.1-8b-instruct",
@@ -23,6 +23,17 @@ export type ChatModel = {
 };
 
 export const chatModels: ChatModel[] = [
+  {
+    id: "deepseek-ai/deepseek-r1",
+    name: "DeepSeek R1",
+    provider: "deepseek-ai",
+    description: "Advanced reasoning model with strong tool calling via NVIDIA NIM",
+    capabilities: {
+      tools: true,
+      vision: false,
+      reasoning: true,
+    },
+  },
   {
     id: "meta/llama-3.1-70b-instruct",
     name: "Llama 3.1 70B",
