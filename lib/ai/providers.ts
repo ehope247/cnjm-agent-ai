@@ -26,7 +26,7 @@ export function getLanguageModel(modelId: string) {
     return myProvider.languageModel(modelId);
   }
 
-  return openai.chat(modelId) as any;
+  return openai(modelId) as any;
 }
 
 export function getTitleModel() {
@@ -34,5 +34,5 @@ export function getTitleModel() {
     return myProvider.languageModel("title-model");
   }
 
-  return openai.chat(titleModel.id) as any;
+  return openai(titleModel.id) as any;
 }
