@@ -1,3 +1,9 @@
+import { openai } from "./providers";
+
+export const customModel = (modelId?: string) => {
+  return openai.chat(modelId || "nvidia/llama-3.1-nemotron-70b-instruct") as any;
+};
+
 export const DEFAULT_CHAT_MODEL = "nvidia/llama-3.1-nemotron-70b-instruct";
 
 export const titleModel = {
